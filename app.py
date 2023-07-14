@@ -13,27 +13,18 @@ def interval(timestamp):
         return 1    
     else:
         return 0
-
-
 def Play(apikey:str)->None:
     playurl="https://api.spotify.com/v1/me/player/play"
     header={"Authorization": f"Bearer {apikey}","Content-Type": "application/json"}
-    # bodytext={"scope":"user-modify-playback-state user-read-playback-state"}
     bodytext={"device_id":"9bbf970aa5f3ad5351152aabc69b1f9208017b05"}
     response=requests.put(playurl,headers=header,)
-    # print(response.text)
-
+    
 def Pause(apikey:str)->None:
     pauseurl="https://api.spotify.com/v1/me/player/pause"
     header={"Authorization": f"Bearer {apikey}","Content-Type": "application/json"}
     response=requests.put(pauseurl,headers=header,)
 
 def main(play:bool=False,pause:bool=False,curr:bool=False,name:bool=False):
-    # print("hi",play,pause,curr,name)
-
-    # clientid=input("Enter your client ID: ")
-    # clientkey=input("Enter your key: ")
-
     url="https://accounts.spotify.com/api/token"
     fileobject=open("token.txt","r")
     apikey=fileobject.read().split(':')[2]
@@ -59,36 +50,16 @@ if __name__ == "__main__":
     if filecontent.split(':')[1]=="NULL" or interval(filecontent.split(':')[1])==1:
         clientid=input("Enter your client ID: ")
         clientkey=input("Enter your key: ")
-        # uri="https://localhost:5000/callback"
-
-        # url="https://accounts.spotify.com/authorize"
-
-        # header={"client_id":clientid,"response_type":"code","redirect_uri":uri,"scope":"user-modify-playback-state user-read-playback-state"}       
-        # redirect_url = url + '?' + urlencode(header)
         app=Flask(__name__)
 
         @app.route('/')
         def login():
-            # clientid=input("Enter your client ID: ")
-            # clientkey=input("Enter your key: ")
-            # uri="https://localhost:5000/callback"
-
-            # url="https://accounts.spotify.com/authorize"
-
-            # header={"client_id":clientid,"response_type":"code","redirect_uri":uri,"scope":"user-modify-playback-state user-read-playback-state"}
-            # # print(os.environ['SPOTIFYTOKEN'])
-            
-            # redirect_url = url + '?' + urlencode(header)
-            
             return redirect(redirect_url)
 
         @app.route('/callback', methods=['GET'])
         def handle_callback():
-            # Retrieve the query parameters from the redirected URI
             code=''
             code = request.args.get('code')
-            # print(code)
-
             fileobject=open("token.txt","r+")
             filecontent=fileobject.read()
             tokenvalue=filecontent.split(':')[1]
@@ -103,18 +74,12 @@ if __name__ == "__main__":
 
                 response=requests.post(baseurl,headers=headerpost,data=bodytext)
                 response=json.loads(response.text)
-                # print(response['access_token'])
-                print("----------------------------")
-                print(response)
-                print("----------------------------")
+                
                 spotifytoken=response['access_token']
                 refreshtoken=response['refresh_token']
                 
                 timestamp=int(time.time())
                 token=f"{timestamp}:{spotifytoken}"
-                # os.environ['SPOTIFYTOKEN']=f"{timestamp}:{spotifytoken}"
-                # os.environ['REFRESHTOKEN']=refreshtoken
-
                 tokenstring="SPOTIFYTOKEN:"+token
                 fileobject.seek(0)
                 fileobject.write(tokenstring)
@@ -137,15 +102,9 @@ if __name__ == "__main__":
 
                     response=requests.post(baseurl,headers=headerpost,data=bodytext)
                     response=json.loads(response.text)
-                    # print(response['access_token'])
-                    # print("----------------------------")
-                    # print(response)
-                    # print("----------------------------")
                     spotifytoken=response['access_token']
                     refreshtoken=response['refresh_token']
-
                     timestamp=int(time.time())
-                    # os.environ['SPOTIFYTOKEN']=f"{timestamp}:{spotifytoken}"
                     fileobject=open("token.txt","r+")
                     token=f"{timestamp}:{spotifytoken}"
                     tokenstring="SPOTIFYTOKEN:"+token
@@ -163,12 +122,13 @@ if __name__ == "__main__":
         url="https://accounts.spotify.com/authorize"
 
         header={"client_id":clientid,"response_type":"code","redirect_uri":uri,"scope":"user-modify-playback-state user-read-playback-state"}
-            # print(os.environ['SPOTIFYTOKEN'])
-            
         redirect_url = url + '?' + urlencode(header)
             
-
+        os.system("open https://127.0.0.1:5000/")
         app.run(port=5000,ssl_context="adhoc")
+        
+
+
             
 
     typer.run(main)
